@@ -13,6 +13,7 @@ vars:
   session_timeout_minutes: 30        # gap that starts a new session
   as_of_date: "2026-06-30"           # "today" for a static dataset
   experiment_window_days: 14         # outcome window after assignment
+  sessions_lookback_hours: 24        # fct_sessions incremental: re-aggregate sessions this far back
   guardrail_max_cancellation_increase: 0.02   # max allowed rise in cancellation rate (2 pts)
 
 models:

@@ -1,0 +1,20 @@
+version: 2
+
+snapshots:
+  - name: snap_customers
+    description: >
+      SCD Type 2 history of customer account_tier. Each row is a period during which a customer held one
+      tier; the current row has dbt_valid_to = null.
+    columns:
+      - name: customer_id
+        tests: [not_null]
+      - name: account_tier
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['standard', 'preferred', 'strategic']
+      - name: dbt_valid_from
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [customer_id, dbt_valid_from]

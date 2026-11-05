@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer with lifetime order and engagement rollups.
+    columns:
+      - name: customer_id
+        description: Primary key.
+        tests: [unique, not_null]
+      - name: segment
+        description: Customer type (Biotech, Pharma, CDMO, Academic).
+      - name: is_active_90d
+        description: True if the customer completed an order in the 90 days before the as_of_date var.
+
+  - name: dim_products
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+
+  - name: fct_orders
+    description: One row per order. The single source of truth for revenue and order counts.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: recognized_revenue
+        description: Net revenue for completed orders only (cancelled and returned orders count as zero).
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "net_revenue <= gross_revenue"
+
+  - name: fct_sessions
+    description: One row per portal session, with funnel flags.
+    columns:
+      - name: session_id
+        tests: [unique, not_null]
+
+  - name: fct_experiment_results
+    description: Control-vs-treatment readout for each experiment, including lift and z-score.
+    columns:
+      - name: experiment_id
+        tests: [unique, not_null]

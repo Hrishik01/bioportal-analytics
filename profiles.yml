@@ -1,0 +1,9 @@
+# Local DuckDB profile — no warehouse account needed.
+# Run dbt with:  dbt <command> --profiles-dir .
+bioportal:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: bioportal.duckdb
+      threads: 4

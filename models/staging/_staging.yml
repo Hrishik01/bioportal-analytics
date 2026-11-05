@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: stg_portal__customers
+    description: One row per customer, cleaned (casing normalised, types cast).
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: region
+        tests:
+          - accepted_values:
+              values: ['NA', 'EU', 'APAC']
+      - name: account_tier
+        tests:
+          - accepted_values:
+              values: ['standard', 'preferred', 'strategic']
+
+  - name: stg_portal__products
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+
+  - name: stg_portal__orders
+    description: One row per order header.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_portal__customers')
+              field: customer_id
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['completed', 'cancelled', 'returned']
+      - name: order_channel
+        tests:
+          - accepted_values:
+              values: ['portal', 'sales_rep']
+
+  - name: stg_portal__order_items
+    columns:
+      - name: order_item_id
+        tests: [unique, not_null]
+      - name: order_id
+        tests:
+          - relationships:
+              to: ref('stg_portal__orders')
+              field: order_id
+
+  - name: stg_portal__events
+    description: One row per unique tracking event (duplicates removed).
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: event_name
+        tests:
+          - accepted_values:
+              values: ['portal_login', 'product_viewed', 'cart_item_added', 'order_placed', 'quote_requested', 'reorder_banner_viewed']
+
+  - name: stg_portal__experiment_assignments
+    columns:
+      - name: variant
+        tests:
+          - accepted_values:
+              values: ['control', 'treatment']
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [experiment_id, customer_id]

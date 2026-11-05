@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: int_order_lines
+    columns:
+      - name: order_item_id
+        tests: [unique, not_null]
+  - name: int_orders_enriched
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+  - name: int_events_sessionized
+    description: Every event tagged with a session_id (30-minute inactivity rule).
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: session_id
+        tests: [not_null]
+  - name: int_experiment_outcomes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [experiment_id, customer_id]
+
+# dbt 1.8+ unit test: checks the sessionization LOGIC on tiny fake data,
+# without touching the real tables.
+unit_tests:
+  - name: test_new_session_starts_after_timeout_gap
+    model: int_events_sessionized
+    given:
+      - input: ref('stg_portal__events')
+        rows:
+          - {event_id: e1, customer_id: 1, event_name: portal_login,   event_at: '2026-01-01 10:00:00'}
+          - {event_id: e2, customer_id: 1, event_name: product_viewed, event_at: '2026-01-01 10:05:00'}
+          - {event_id: e3, customer_id: 1, event_name: portal_login,   event_at: '2026-01-01 11:00:00'}
+          - {event_id: e4, customer_id: 2, event_name: portal_login,   event_at: '2026-01-01 10:01:00'}
+    expect:
+      rows:
+        - {event_id: e1, session_id: '1-1'}
+        - {event_id: e2, session_id: '1-1'}
+        - {event_id: e3, session_id: '1-2'}
+        - {event_id: e4, session_id: '2-1'}

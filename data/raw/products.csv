@@ -1,0 +1,41 @@
+product_id,product_name,category,list_price
+1,Chromatography Item 01,Chromatography,212.12
+2,Filtration Item 02,Filtration,141.45
+3,Process Analytics Item 03,Process Analytics,149.91
+4,Consumables Item 04,Consumables,251.0
+5,Chromatography Item 05,Chromatography,82.94
+6,Filtration Item 06,Filtration,153.28
+7,Process Analytics Item 07,Process Analytics,115.61
+8,Consumables Item 08,Consumables,41.74
+9,Chromatography Item 09,Chromatography,71.07
+10,Filtration Item 10,Filtration,520.38
+11,Process Analytics Item 11,Process Analytics,201.9
+12,Consumables Item 12,Consumables,51.48
+13,Chromatography Item 13,Chromatography,43.28
+14,Filtration Item 14,Filtration,135.68
+15,Process Analytics Item 15,Process Analytics,517.47
+16,Consumables Item 16,Consumables,127.82
+17,Chromatography Item 17,Chromatography,422.25
+18,Filtration Item 18,Filtration,196.67
+19,Process Analytics Item 19,Process Analytics,216.37
+20,Consumables Item 20,Consumables,50.98
+21,Chromatography Item 21,Chromatography,314.2
+22,Filtration Item 22,Filtration,113.53
+23,Process Analytics Item 23,Process Analytics,296.03
+24,Consumables Item 24,Consumables,77.38
+25,Chromatography Item 25,Chromatography,171.0
+26,Filtration Item 26,Filtration,196.68
+27,Process Analytics Item 27,Process Analytics,131.21
+28,Consumables Item 28,Consumables,205.13
+29,Chromatography Item 29,Chromatography,119.93
+30,Filtration Item 30,Filtration,88.3
+31,Process Analytics Item 31,Process Analytics,536.14
+32,Consumables Item 32,Consumables,343.49
+33,Chromatography Item 33,Chromatography,80.75
+34,Filtration Item 34,Filtration,233.87
+35,Process Analytics Item 35,Process Analytics,81.93
+36,Consumables Item 36,Consumables,57.53
+37,Chromatography Item 37,Chromatography,339.36
+38,Filtration Item 38,Filtration,37.97
+39,Process Analytics Item 39,Process Analytics,311.53
+40,Consumables Item 40,Consumables,121.25

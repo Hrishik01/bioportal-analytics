@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: portal
+    description: Raw tables loaded as-is from the B2B ordering portal and its ERP (EL step, no transformation).
+    schema: raw
+    tables:
+      - name: customers
+        columns:
+          - name: customer_id
+            tests: [unique, not_null]
+      - name: products
+        columns:
+          - name: product_id
+            tests: [unique, not_null]
+      - name: orders
+        columns:
+          - name: order_id
+            tests: [unique, not_null]
+      - name: order_items
+        columns:
+          - name: order_item_id
+            tests: [unique, not_null]
+      - name: events
+        description: Client-side event stream. Contains ~0.5% duplicate event_ids from SDK retries.
+        columns:
+          - name: event_id
+            tests: [not_null]
+      - name: experiment_assignments

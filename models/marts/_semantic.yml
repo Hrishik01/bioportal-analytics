@@ -1,0 +1,81 @@
+version: 2
+
+# The semantic layer: define each metric ONCE here, query it anywhere
+# (BI tools, notebooks, the MetricFlow CLI) with consistent results.
+
+semantic_models:
+  - name: orders
+    description: Order facts, one row per order.
+    model: ref('fct_orders')
+    defaults:
+      agg_time_dimension: order_date
+    entities:
+      - name: order
+        type: primary
+        expr: order_id
+      - name: customer
+        type: foreign
+        expr: customer_id
+    dimensions:
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: order_status
+        type: categorical
+      - name: order_channel
+        type: categorical
+    measures:
+      - name: recognized_revenue
+        description: Net revenue from completed orders.
+        agg: sum
+      - name: completed_orders
+        description: Count of completed orders.
+        agg: sum
+        expr: completed_order
+      - name: units_sold
+        agg: sum
+        expr: units
+
+  - name: customers
+    description: Customer dimension.
+    model: ref('dim_customers')
+    entities:
+      - name: customer
+        type: primary
+        expr: customer_id
+    dimensions:
+      - name: segment
+        type: categorical
+      - name: region
+        type: categorical
+      - name: account_tier
+        type: categorical
+
+metrics:
+  - name: revenue
+    label: Revenue
+    description: Net revenue from completed orders.
+    type: simple
+    type_params:
+      measure: recognized_revenue
+
+  - name: order_count
+    label: Completed orders
+    type: simple
+    type_params:
+      measure: completed_orders
+
+  - name: average_order_value
+    label: Average order value
+    description: Revenue divided by completed orders.
+    type: ratio
+    type_params:
+      numerator: revenue
+      denominator: order_count
+
+  - name: units
+    label: Units sold
+    type: simple
+    type_params:
+      measure: units_sold

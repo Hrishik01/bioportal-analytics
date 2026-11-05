@@ -1,0 +1,6 @@
+dbt-core~=1.8.0
+dbt-duckdb~=1.8.0
+dbt-metricflow[duckdb]~=0.7.0
+duckdb
+pandas
+numpy

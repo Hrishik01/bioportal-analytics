@@ -6,6 +6,15 @@ An analytics-engineering portfolio project: raw B2B ordering-portal data → tes
 
 It runs entirely on your laptop (DuckDB — no warehouse account needed).
 
+## Preview
+
+| | |
+|---|---|
+| ![Lineage graph](docs/images/lineage.png) | ![dbt build passing](docs/images/dbt-build.png) |
+| ![Experiment results](docs/images/experiment-results.png) | ![Semantic layer query](docs/images/semantic-layer.png) |
+
+*Lineage graph (`dbt docs`), a green `dbt build`, the experiment readout, and a MetricFlow query.*
+
 ## What's in it
 
 | Layer | What happens | Models |

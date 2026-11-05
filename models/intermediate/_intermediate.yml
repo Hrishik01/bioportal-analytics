@@ -26,6 +26,10 @@ models:
 unit_tests:
   - name: test_new_session_starts_after_timeout_gap
     model: int_events_sessionized
+    # Unit tests don't see dbt_project.yml vars, so pin the timeout the test assumes.
+    overrides:
+      vars:
+        session_timeout_minutes: 30
     given:
       - input: ref('stg_portal__events')
         rows:

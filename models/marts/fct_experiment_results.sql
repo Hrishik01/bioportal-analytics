@@ -50,5 +50,5 @@ tested as (
 
 select
     *,
-    abs(z_score) > 1.96 as is_significant_95
+    case when abs(z_score) > 1.96 then true else false end as is_significant_95
 from tested

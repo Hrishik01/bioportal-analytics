@@ -14,5 +14,6 @@ select
     case when order_status = 'completed' then net_revenue else 0 end   as recognized_revenue,
     case when order_status = 'completed' then 1 else 0 end             as completed_order,
     row_number() over (partition by customer_id order by ordered_at)   as customer_order_number,
-    row_number() over (partition by customer_id order by ordered_at) = 1 as is_first_order
+    case when row_number() over (partition by customer_id order by ordered_at) = 1
+         then true else false end                                       as is_first_order
 from {{ ref('int_orders_enriched') }}

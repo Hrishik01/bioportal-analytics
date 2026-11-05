@@ -21,7 +21,7 @@ flagged as (
         *,
         case
             when previous_event_at is null then 1
-            when {{ dbt.datediff('previous_event_at', 'event_at', 'second') }} > {{ var('session_timeout_minutes') * 60 }} then 1
+            when {{ dbt.datediff('previous_event_at', 'event_at', 'second') }} > {{ session_timeout_seconds() }} then 1
             else 0
         end as is_new_session
     from with_previous

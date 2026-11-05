@@ -49,5 +49,6 @@ combined as (
 
 select
     *,
-    coalesce(days_since_last_order <= 90, false) as is_active_90d
+    -- never-ordered customers have a null gap, so they fall through to false
+    case when days_since_last_order <= 90 then true else false end as is_active_90d
 from combined

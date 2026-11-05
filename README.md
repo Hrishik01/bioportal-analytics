@@ -1,5 +1,7 @@
 # Bioportal Analytics — a dbt project
 
+All data is synthetic.
+
 An analytics-engineering portfolio project: raw B2B ordering-portal data → tested, documented dbt models → a semantic layer of governed metrics → an A/B test readout.
 
 It runs entirely on your laptop (DuckDB — no warehouse account needed).

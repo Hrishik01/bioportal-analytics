@@ -45,3 +45,40 @@ models:
     columns:
       - name: experiment_id
         tests: [unique, not_null]
+
+  - name: fct_customer_retention
+    description: >
+      Signup-month cohort retention. One row per cohort and month offset 0-6 (month 0 = signup month).
+      A customer is retained in a month if they placed at least one completed order in it.
+      retention_rate is NULL for months that cannot be observed: after the as_of_date var, or before the first month of order history.
+    columns:
+      - name: cohort_month
+        description: First day of the month the customers signed up in.
+        tests: [not_null]
+      - name: months_since_signup
+        description: Calendar months after the signup month (0 = signup month).
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 6
+      - name: cohort_size
+        description: Customers who signed up in the cohort month.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: retained_customers
+        description: Customers in the cohort with a completed order in that month.
+        tests: [not_null]
+      - name: retention_rate
+        description: retained_customers / cohort_size; NULL when the month is outside the observable order history.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [cohort_month, months_since_signup]
+      - dbt_utils.expression_is_true:
+          expression: "retained_customers <= cohort_size"

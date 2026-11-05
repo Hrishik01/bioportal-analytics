@@ -1,16 +1,16 @@
 -- One row per (experiment, customer): did they place a completed order within the
 -- outcome window after being assigned? Intent-to-treat: everyone assigned counts,
 -- whether or not they actually saw the banner.
+-- Also counts ALL orders in the window (any status) for the cancellation guardrail.
 with assignments as (
 
     select * from {{ ref('stg_portal__experiment_assignments') }}
 
 ),
 
-completed_orders as (
+orders as (
 
     select * from {{ ref('int_orders_enriched') }}
-    where order_status = 'completed'
 
 ),
 
@@ -30,10 +30,14 @@ joined as (
         a.customer_id,
         a.variant,
         a.assigned_at,
-        count(o.order_id)                       as orders_in_window,
-        coalesce(sum(o.net_revenue), 0)         as revenue_in_window
+        -- primary metric inputs: completed orders only
+        count(case when o.order_status = 'completed' then o.order_id end)       as orders_in_window,
+        coalesce(sum(case when o.order_status = 'completed' then o.net_revenue end), 0) as revenue_in_window,
+        -- guardrail inputs: every order placed in the window
+        count(o.order_id)                       as placed_orders_in_window,
+        count(case when o.order_status in ('cancelled', 'returned') then o.order_id end) as cancelled_or_returned_in_window
     from assignments as a
-    left join completed_orders as o
+    left join orders as o
         on a.customer_id = o.customer_id
         and o.ordered_at >= a.assigned_at
         and o.ordered_at < {{ dbt.dateadd('day', var('experiment_window_days'), 'a.assigned_at') }}

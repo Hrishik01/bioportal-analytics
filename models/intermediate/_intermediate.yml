@@ -17,6 +17,18 @@ models:
       - name: session_id
         tests: [not_null]
   - name: int_experiment_outcomes
+    description: >
+      One row per assigned customer. orders_in_window / revenue_in_window count completed orders only (primary
+      metric); placed_orders_in_window / cancelled_or_returned_in_window cover all statuses (guardrail).
+    columns:
+      - name: cancelled_or_returned_in_window
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "<= placed_orders_in_window"
+      - name: orders_in_window
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "<= placed_orders_in_window"
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [experiment_id, customer_id]

@@ -8,7 +8,11 @@ with by_variant as (
         sum(converted)                              as n_converted,
         sum(converted) * 1.0 / count(*)             as conversion_rate,
         sum(revenue_in_window) / count(*)           as revenue_per_customer,
-        sum(was_exposed) * 1.0 / count(*)           as exposure_rate
+        sum(was_exposed) * 1.0 / count(*)           as exposure_rate,
+        -- guardrail: share of orders placed in the window that were cancelled or returned
+        sum(placed_orders_in_window)                as placed_orders,
+        sum(cancelled_or_returned_in_window) * 1.0
+            / nullif(sum(placed_orders_in_window), 0) as cancellation_rate
     from {{ ref('int_experiment_outcomes') }}
     group by experiment_id, variant
 
@@ -27,7 +31,12 @@ compared as (
         (c.n_converted + t.n_converted) * 1.0 / (c.n_customers + t.n_customers) as pooled_rate,
         c.revenue_per_customer                      as control_revenue_per_customer,
         t.revenue_per_customer                      as treatment_revenue_per_customer,
-        t.exposure_rate                             as treatment_exposure_rate
+        t.exposure_rate                             as treatment_exposure_rate,
+        c.placed_orders                             as control_placed_orders,
+        t.placed_orders                             as treatment_placed_orders,
+        c.cancellation_rate                         as control_cancellation_rate,
+        t.cancellation_rate                         as treatment_cancellation_rate,
+        t.cancellation_rate - c.cancellation_rate   as cancellation_rate_lift
     from by_variant as t
     inner join by_variant as c
         on t.experiment_id = c.experiment_id
@@ -50,5 +59,8 @@ tested as (
 
 select
     *,
-    case when abs(z_score) > 1.96 then true else false end as is_significant_95
+    case when abs(z_score) > 1.96 then true else false end as is_significant_95,
+    -- guardrail: treatment may not raise cancellations by more than the pre-agreed margin
+    case when cancellation_rate_lift > {{ var('guardrail_max_cancellation_increase') }}
+         then true else false end                           as is_guardrail_breached
 from tested

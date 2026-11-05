@@ -30,6 +30,12 @@ models:
               field: customer_id
       - name: recognized_revenue
         description: Net revenue for completed orders only (cancelled and returned orders count as zero).
+      - name: cancelled_or_returned_order
+        description: 1 if the order was cancelled or returned, else 0. Numerator of the cancellation_rate metric.
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
     tests:
       - dbt_utils.expression_is_true:
           expression: "net_revenue <= gross_revenue"
@@ -45,6 +51,21 @@ models:
     columns:
       - name: experiment_id
         tests: [unique, not_null]
+      - name: control_cancellation_rate
+        description: Guardrail. Cancelled + returned orders / all orders placed by control customers in the window.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 1}
+      - name: treatment_cancellation_rate
+        description: Guardrail. Same definition, treatment arm.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 1}
+      - name: cancellation_rate_lift
+        description: treatment minus control cancellation rate, in absolute points. Positive = treatment is worse.
+      - name: is_guardrail_breached
+        description: True if cancellation_rate_lift exceeds the guardrail_max_cancellation_increase var.
+        tests: [not_null]
 
   - name: fct_customer_retention
     description: >

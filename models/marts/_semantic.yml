@@ -36,6 +36,14 @@ semantic_models:
       - name: units_sold
         agg: sum
         expr: units
+      - name: all_orders
+        description: Count of orders in any status.
+        agg: sum
+        expr: "1"
+      - name: cancelled_or_returned_orders
+        description: Count of cancelled and returned orders.
+        agg: sum
+        expr: cancelled_or_returned_order
 
   - name: customers
     description: Customer dimension.
@@ -79,3 +87,23 @@ metrics:
     type: simple
     type_params:
       measure: units_sold
+
+  - name: all_orders
+    label: All orders
+    type: simple
+    type_params:
+      measure: all_orders
+
+  - name: cancelled_or_returned_orders
+    label: Cancelled or returned orders
+    type: simple
+    type_params:
+      measure: cancelled_or_returned_orders
+
+  - name: cancellation_rate
+    label: Cancellation rate
+    description: Cancelled and returned orders divided by all orders. Guardrail metric for experiments.
+    type: ratio
+    type_params:
+      numerator: cancelled_or_returned_orders
+      denominator: all_orders
